@@ -92,7 +92,7 @@ player3 = Player("Charlie")
 players = [player1, player2, player3]
 
 # deal some cards to the players
-hands = [[shuffled_deck.pop(0) for i in range(3)] for j in range(len(players))]
+hands = distribute_cards(len(players), shuffled_deck, 4)
 distribute_hands_to_players(players, hands)
 
 # print the players' decks
