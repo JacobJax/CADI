@@ -1,0 +1,17 @@
+if card_title in ["Ace"] and card_symbol in ["Spades"]:
+                special_power = "The CURRENT_PAYER To Request A Card With Title and Symbol"
+                card = SpecialCard((card_title, card_symbol), special_power)
+            elif card_title in ["Ace"]:
+                special_power = "The CURRENT_PAYER Play with Symbol Requested By PREVIOUS_PLAYER"
+                card = SpecialCard((card_title, card_symbol), special_power)
+            elif card_title in ["2", "3"]:
+                special_power = f"CURRENT_PAYER To Draw {int(card_title)} cards"
+                card = SpecialCard((card_title, card_symbol), special_power)
+            elif card_title in ["8", "Queen"]:
+                special_power = "The CURRENT_PLAYER To Answer The Question"
+                card = SpecialCard((card_title, card_symbol), special_power)
+            elif card_title in ["Jack"]:
+                special_power = "The CURRENT_PLAYER BE Skipped"
+                card = SpecialCard((card_title, card_symbol), special_power)
+            elif card_title in ["King"]:
+                special_power = "The GAME_TURN To Reverse"
