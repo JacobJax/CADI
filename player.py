@@ -1,7 +1,5 @@
 import re
-
 from card import Card, SpecialCard
-
 
 class Player:
     def __init__(self, player_name):
@@ -19,16 +17,23 @@ class Player:
             if card.is_special:
                 return False
         print(f"{self.player_name} ako CADI!!")
-        return True
-          
-
+        return True   
+    
     def play(self, played_deck, index):
-         print(self.player_deck[index])
-         played_deck.add_card(self.player_deck[index])
-         self.player_deck.remove(self.player_deck[index])
+        card = self.player_deck[index]
+        if card.title == played_deck[-1].title or card.symbol == played_deck[-1].symbol:
+            self.deck.remove(card)
+            played_deck.append(card)
+            print(card)
+        else:
+            print(f"{card} is not playable.")
 
     def display_cards(self):
         print(f"{self.player_name}'s cards:")
-        for card in self.player_deck:
-            print(card)
+        for i, card in enumerate(self.player_deck):
+            print(f"[{i+1}] {card}")
+
+    
+    def check_win(self):
+        return len(self.player_deck) == 0
        

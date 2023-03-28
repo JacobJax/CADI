@@ -85,6 +85,14 @@ def deal_card(player, deck):
 deck = create_deck()
 shuffled_deck = shuffle_deck(deck)
 
+
+# ------------- #
+#   GAME LOOP   #
+# --------------#
+
+
+
+
 # create some players
 player1 = Player("Alice")
 player2 = Player("Bob")

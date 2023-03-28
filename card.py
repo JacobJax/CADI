@@ -7,13 +7,11 @@ class Card:
         if self.card_title in ["Ace", "2", "3", "8", "Jack", "Queen", "King"]:
             self.is_special = True
 
-
     def __str__(self):
         if self.is_special:
             return f"{self.card_title} of {self.card_symbol} ({self.special_power})"
         else:
             return f"{self.card_title} of {self.card_symbol}"
-
 
 
 class SpecialCard(Card):
