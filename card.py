@@ -4,7 +4,7 @@ class Card:
         self.card_symbol = card_tuple[1]
 
         self.is_special = False
-        if self.card_title in ["Ace", "2", "3", "8", "Jack", "Queen", "King"]:
+        if self.card_title in ["Ace", "2", "3", "8", "Jack", "Queen", "King", "Joker"]:
             self.is_special = True
 
     def __str__(self):
