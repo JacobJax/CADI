@@ -12,6 +12,12 @@ class Card:
             return f"{self.card_title} of {self.card_symbol} ({self.special_power})"
         else:
             return f"{self.card_title} of {self.card_symbol}"
+        
+    def get_card_title(self):
+        return self.card_title
+    
+    def get_card_symbol(self):
+        return self.card_symbol
 
 
 class SpecialCard(Card):

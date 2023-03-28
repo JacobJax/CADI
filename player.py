@@ -25,12 +25,20 @@ class Player:
             self.player_deck.remove(card)
             played_deck.append(card)
             print(card)
+
+            return True
         elif card.card_title == played_deck[-1].card_title or card.card_symbol == played_deck[-1].card_symbol:
             self.player_deck.remove(card)
             played_deck.append(card)
             print(card)
+
+            return True
         else:
             print(f"{card} is not playable.")
+            
+            return False
+        
+        
 
 
     def display_cards(self):
