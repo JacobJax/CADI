@@ -122,7 +122,7 @@ def generate_cards(players, deck):
     
     return deck
 
-def play_card(player, deck):
+def play_card(player, p_deck, g_deck):
     print(f"\nPlayer {player.player_name}'s deck:")
     player.display_cards()
 
@@ -136,7 +136,8 @@ def play_card(player, deck):
         except ValueError:
             print("Please enter a valid integer index.")
 
-    player.play(deck, index)
+    if not player.play(p_deck, index):
+        deal_cards(player, g_deck, 1)
 
 
 
@@ -174,7 +175,7 @@ while True:
     print(display_text)
 
     # show player's cards and tell them to choose
-    play_card(current_player, played_deck)
+    play_card(current_player, played_deck, game_deck)
 
     # check if player is Game
     if current_player.check_game():
@@ -197,33 +198,37 @@ while True:
 
     # Check if the next player should be skipped
     elif played_deck[-1].is_special and played_deck[-1].special_power == "JUMP":
-        if not reverse_turns:
-            current_player_index = (current_player_index + 1) % len(players)
-        else:
-            current_player_index = (current_player_index - 1) % len(players)
+        current_player_index = (current_player_index + 1) % len(players)
 
-    # Check if the next player should draw cards
+    # Check if the next player should draw 2 cards
     elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_2_CARDS":
         next_player_index = (current_player_index + 1) % len(players)
         game_deck = deal_cards(players[next_player_index], game_deck, 2)
 
-    # Check if the next player should draw cards
+        current_player_index = next_player_index 
+
+    # Check if the next player should draw 3 cards
     elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_3_CARDS":
         next_player_index = (current_player_index + 1) % len(players)
         game_deck = deal_cards(players[next_player_index], game_deck, 3)
 
-    # Check if the next player should draw cards
+        current_player_index = next_player_index
+
+    # Check if the next player should draw 5 cards
     elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_5_CARDS":
         next_player_index = (current_player_index + 1) % len(players)
         game_deck = deal_cards(players[next_player_index], game_deck, 5)
 
-    # Check if the next player should draw cards
+        current_player_index = next_player_index 
+
+    # Check if the PLayer played a question
     elif played_deck[-1].is_special and played_deck[-1].special_power == "QUESTION":
         next_player_index = current_player_index
-        if played_deck[-1].card_symbol in current_player.player_deck:
-            play_card(players[next_player_index], played_deck)
-        else:
-            game_deck = deal_cards(players[next_player_index], game_deck, 1)
+        if played_deck[-1].get_card_symbol in current_player.player_deck:
+            if not play_card(players[next_player_index], played_deck, game_deck):
+                game_deck = deal_cards(players[next_player_index], game_deck, 1)
+        
+        current_player_index = next_player_index
 
 
     # Check if the game has ended due to lack of playable cards
@@ -232,8 +237,3 @@ while True:
         break
 
 
-
-# print_deck(game_deck)
-# # print the players' decks
-# for player in players:
-#     print(f"{player.display_cards()}\n")
