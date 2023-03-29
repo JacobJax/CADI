@@ -136,14 +136,21 @@ def play_card(player, p_deck, g_deck, req_symbol):
         except ValueError:
             print("Please enter a valid integer index.")
 
-    if p_deck and p_deck[-1].is_special and p_deck[-1].special_power == "TITLE_AND_SYMBOL":
-        if not player.play(p_deck, index, wildcard = True):
-            g_deck = deal_cards(player, g_deck, 1)
-            
+    # SORRY FUTURE ME!!
+    # ----CODE CHAFU Starts Here-----#
+    if p_deck:
+        if p_deck[-1].is_special and p_deck[-1].special_power == "TITLE_AND_SYMBOL":
+            if not player.play(p_deck, index, wildcard = True):
+                g_deck = deal_cards(player, g_deck, 1)
+                
+        if p_deck[-1].is_special and p_deck[-1].special_power == "SYMBOL":
+            if not player.play(p_deck, index, card_symbol = req_symbol):
+                g_deck = deal_cards(player, g_deck, 1)
 
-    if p_deck and p_deck[-1].is_special and p_deck[-1].special_power == "SYMBOL":
+    else:
         if not player.play(p_deck, index, card_symbol = req_symbol):
             g_deck = deal_cards(player, g_deck, 1)
+    # ----CODE CHAFU Ends Here-----#
 
     return p_deck, g_deck
 
