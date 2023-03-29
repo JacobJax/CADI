@@ -34,7 +34,7 @@ class Player:
             self.player_deck.remove(card)
             
             return True
-        elif card.card_title == played_deck[-1].card_title or card.card_symbol == played_deck[-1].card_symbol:
+        elif (not card.card_title == "Ace" or not card.car_title == "Joker") and (card.card_title == played_deck[-1].card_title or card.card_symbol == played_deck[-1].card_symbol):
             played_deck.append(card)
             self.player_deck.remove(card)
 
