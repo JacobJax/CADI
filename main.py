@@ -138,18 +138,20 @@ def play_card(player, p_deck, g_deck, req_symbol):
 
     # SORRY FUTURE ME!!
     # ----CODE CHAFU Starts Here-----#
-    if p_deck:
-        if p_deck[-1].is_special and p_deck[-1].special_power == "TITLE_AND_SYMBOL":
+
+    if p_deck and p_deck[-1].is_special:
+        if p_deck[-1].special_power == "TITLE_AND_SYMBOL":
             if not player.play(p_deck, index, wildcard = True):
                 g_deck = deal_cards(player, g_deck, 1)
                 
-        if p_deck[-1].is_special and p_deck[-1].special_power == "SYMBOL":
+        elif p_deck[-1].special_power == "SYMBOL":
             if not player.play(p_deck, index, card_symbol = req_symbol):
                 g_deck = deal_cards(player, g_deck, 1)
 
     else:
         if not player.play(p_deck, index, card_symbol = req_symbol):
             g_deck = deal_cards(player, g_deck, 1)
+
     # ----CODE CHAFU Ends Here-----#
 
     return p_deck, g_deck
@@ -221,8 +223,15 @@ while True:
 
     # show player's cards and tell them to choose
     played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
-
-    print_deck(played_deck)
+    
+    # Move to the next player
+    if not reverse_turns:
+        current_player_index = (current_player_index + 1) % len(players)
+    else:
+        current_player_index = (current_player_index - 1) % len(players)
+    
+    # get top card
+    top_card = played_deck[-1]
 
     # check if player is Game
     if current_player.check_game():
@@ -233,59 +242,44 @@ while True:
         print(f"\n{current_player.player_name} has won the game!")
         break
 
-    # Move to the next player
-    if not reverse_turns:
-        current_player_index = (current_player_index + 1) % len(players)
-    else:
-        current_player_index = (current_player_index - 1) % len(players)
+    if top_card.is_special:
+        # Check if the direction of turns should be reversed
+        if top_card.special_power == "KICKBACK":
+            reverse_turns = not reverse_turns
 
-    # Check if the direction of turns should be reversed
-    if played_deck[-1].is_special and played_deck[-1].special_power == "KICKBACK":
-        reverse_turns = not reverse_turns
+        # Check if the next player should be skipped
+        elif top_card.special_power == "JUMP":
+            current_player_index = (current_player_index + 1) % len(players)
 
-    # Check if the next player should be skipped
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "JUMP":
-        current_player_index = (current_player_index + 1) % len(players)
+        # Check if the next player should play a specific symbol
+        elif top_card.special_power == "SYMBOL":
+            required_card = set_required_card_symbol()
+            played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
 
-    # Check if the next player should play a specific symbol
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "SYMBOL":
-        required_card = set_required_card_symbol()
-        next_player_index = (current_player_index + 1) % len(players)
 
-    # Check if the next player should play a specifi card
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "TITLE_AND_SYMBOL":
-        required_card = set_required_card_title_and_symbol()
-        next_player_index = (current_player_index + 1) % len(players)
+        # Check if the next player should play a specifi card
+        elif top_card.special_power == "TITLE_AND_SYMBOL":
+            required_card = set_required_card_title_and_symbol()
+            played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
 
-    # Check if the next player should draw 2 cards
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_2_CARDS":
-        next_player_index = (current_player_index + 1) % len(players)
-        game_deck = deal_cards(players[next_player_index], game_deck, 2)
 
-        current_player_index = next_player_index 
+        # Check if the next player should draw 2 cards
+        elif top_card.special_power == "DRAW_2_CARDS":
+            game_deck = deal_cards(current_player, game_deck, 2)
 
-    # Check if the next player should draw 3 cards
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_3_CARDS":
-        next_player_index = (current_player_index + 1) % len(players)
-        game_deck = deal_cards(players[next_player_index], game_deck, 3)
+        # Check if the next player should draw 3 cards
+        elif top_card.special_power == "DRAW_3_CARDS":
+            game_deck = deal_cards(current_player, game_deck, 3)
 
-        current_player_index = next_player_index
+        # Check if the next player should draw 5 cards
+        elif top_card.special_power == "DRAW_5_CARDS":
+            game_deck = deal_cards(current_player, game_deck, 5)
 
-    # Check if the next player should draw 5 cards
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_5_CARDS":
-        next_player_index = (current_player_index + 1) % len(players)
-        game_deck = deal_cards(players[next_player_index], game_deck, 5)
-
-        current_player_index = next_player_index 
-
-    # Check if the PLayer played a question
-    elif played_deck[-1].is_special and played_deck[-1].special_power == "QUESTION":
-        next_player_index = current_player_index
-        if played_deck[-1].get_card_symbol in current_player.player_deck:
-            if not play_card(players[next_player_index], played_deck, game_deck):
-                game_deck = deal_cards(players[next_player_index], game_deck, 1)
-        
-        current_player_index = next_player_index
+        # Check if the PLayer played a question
+        elif top_card.special_power == "QUESTION":
+            if top_card.get_card_symbol in current_player.player_deck:
+                played_deck, game_deck = play_card(players[current_player_index], played_deck, game_deck, required_symbol)
+                
 
     # Check if the game has ended due to lack of playable cards
     if len(played_deck) == 0:
