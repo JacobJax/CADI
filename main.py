@@ -1,3 +1,4 @@
+from art import text2art
 import random
 from card import Card
 from player import Player
@@ -197,12 +198,17 @@ def get_first_non_special_card(deck):
         deck.remove(non_special_card)
     return non_special_card
 
-
+def draw_title(title):
+    cadi_art = text2art(title, font='block')
+    print(cadi_art)
 
 
 # ------------- #
 #   GAME LOOP   #
 # --------------#
+
+# ATLEAST WE GOT A NICE TITLE
+draw_title("QAD1")
 
 # create a deck and shuffle it
 deck = create_deck()
@@ -256,43 +262,57 @@ while True:
         print(f"\n{current_player.player_name} has won the game!")
         break
 
-    if top_card.is_special:
-        # Check if the direction of turns should be reversed
-        if top_card.special_power == "KICKBACK":
-            reverse_turns = not reverse_turns
+    # Check if the direction of turns should be reversed
+    if top_card.is_special and top_card.special_power == "KICKBACK":
+        reverse_turns = not reverse_turns
+        played_deck.pop(-1)
 
-        # Check if the next player should be skipped
-        elif top_card.special_power == "JUMP":
-            play_index += 1
+    # Check if the next player should be skipped
+    elif top_card.is_special and top_card.special_power == "JUMP":
+        play_index += 1
+        played_deck.pop(-1)
 
-        # Check if the next player should play a specific symbol
-        elif top_card.special_power == "SYMBOL":
-            required_card = set_required_card_symbol()
-            played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
+    # Check if the next player should play a specific symbol
+    elif top_card.is_special and top_card.special_power == "SYMBOL":
+        required_card = set_required_card_symbol()
+        played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
+        current_player_index = (current_player_index + play_index) % len(players)
+        played_deck.pop(-1)
 
-        # Check if the next player should play a specifi card
-        elif top_card.special_power == "TITLE_AND_SYMBOL":
-            required_card = set_required_card_title_and_symbol()
-            played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
+    # Check if the next player should play a specifi card
+    elif top_card.is_special and top_card.special_power == "TITLE_AND_SYMBOL":
+        required_card = set_required_card_title_and_symbol()
+        played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
+        current_player_index = (current_player_index + play_index) % len(players)
+        played_deck.pop(-1)
 
-        # Check if the next player should draw 2 cards
-        elif top_card.special_power == "DRAW_2_CARDS":
-            game_deck = deal_cards(current_player, game_deck, 2)
+    # Check if the next player should draw 2 cards
+    elif top_card.is_special and top_card.special_power == "DRAW_2_CARDS":
+        game_deck = deal_cards(current_player, game_deck, 2)
+        current_player_index = (current_player_index + play_index) % len(players)
+        played_deck.pop(-1)
 
-        # Check if the next player should draw 3 cards
-        elif top_card.special_power == "DRAW_3_CARDS":
-            game_deck = deal_cards(current_player, game_deck, 3)
+    # Check if the next player should draw 3 cards
+    elif top_card.is_special and top_card.special_power == "DRAW_3_CARDS":
+        game_deck = deal_cards(current_player, game_deck, 3)
+        current_player_index = (current_player_index + play_index) % len(players)
+        played_deck.pop(-1)
 
-        # Check if the next player should draw 5 cards
-        elif top_card.special_power == "DRAW_5_CARDS":
-            game_deck = deal_cards(current_player, game_deck, 5)
+    # Check if the next player should draw 5 cards
+    elif top_card.is_special and top_card.special_power == "DRAW_5_CARDS":
+        game_deck = deal_cards(current_player, game_deck, 5)
+        current_player_index = (current_player_index + play_index) % len(players)
+        played_deck.pop(-1)
 
-        # Check if the PLayer played a question
-        elif top_card.special_power == "QUESTION":
-            if top_card.get_card_symbol in current_player.player_deck:
-                played_deck, game_deck = play_card(players[current_player_index], played_deck, game_deck, required_symbol)
-            else:
-                game_deck = deal_cards(current_player, game_deck, 1)    
+    # Check if the PLayer played a question
+    elif top_card.is_special and top_card.special_power == "QUESTION":
+        if top_card.get_card_symbol in current_player.player_deck:
+            played_deck, game_deck = play_card(players[current_player_index], played_deck, game_deck, required_symbol)
+        else:
+            game_deck = deal_cards(current_player, game_deck, 1) 
+
+        current_player_index = (current_player_index + play_index) % len(players)
+        played_deck.pop(-1)
 
     # Check if the game has ended due to lack of playable cards
     if len(game_deck) == 0:
