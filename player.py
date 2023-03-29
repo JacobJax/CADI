@@ -29,20 +29,17 @@ class Player:
             print(f"\n{card} cannot be played. The card symbol must be {card_symbol}.")
             return False
         
-        if not played_deck:
-            played_deck.append(card)
-            self.player_deck.remove(card)
-            
-            return True
-        elif (not card.card_title == "Ace" or not card.car_title == "Joker") and (card.card_title == played_deck[-1].card_title or card.card_symbol == played_deck[-1].card_symbol):
-            played_deck.append(card)
-            self.player_deck.remove(card)
 
-            return True
-        else:
-            print(f"\n{card} is not playable.")
-            
-            return False
+        if not (card.card_title == "Ace" or card.card_title == "Joker"):
+            if card.card_title == played_deck[-1].card_title or card.card_symbol == played_deck[-1].card_symbol:
+                played_deck.append(card)
+                self.player_deck.remove(card)
+
+                return True
+            else:
+                print(f"\n{card} is not playable.")
+                
+                return False
 
         
 

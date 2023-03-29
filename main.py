@@ -106,7 +106,7 @@ def generate_players():
     return players
 
 def generate_cards(players, deck):
-    print("\n[A] Classic\n[B] Four card\n")
+    print("\n[A] Classic [B] Four card\n")
     while True:
         game_type = input("Enter the type of game to play: ")
         if game_type.lower() == "a":
@@ -126,6 +126,7 @@ def play_card(player, p_deck, g_deck, req_symbol):
     print(f"\nPlayer {player.player_name}'s deck:")
     player.display_cards()
 
+    top_card = p_deck[-1]
     while True:
         try:
             index = int(input("Enter the index of the card you want to play (starting from 1): ")) - 1
@@ -139,12 +140,12 @@ def play_card(player, p_deck, g_deck, req_symbol):
     # SORRY FUTURE ME!!
     # ----CODE CHAFU Starts Here-----#
 
-    if p_deck and p_deck[-1].is_special:
-        if p_deck[-1].special_power == "TITLE_AND_SYMBOL":
+    if top_card.is_special:
+        if top_card.special_power == "TITLE_AND_SYMBOL":
             if not player.play(p_deck, index, wildcard = True):
                 g_deck = deal_cards(player, g_deck, 1)
                 
-        elif p_deck[-1].special_power == "SYMBOL":
+        elif top_card.special_power == "SYMBOL":
             if not player.play(p_deck, index, card_symbol = req_symbol):
                 g_deck = deal_cards(player, g_deck, 1)
 
@@ -190,6 +191,14 @@ def set_required_card_title_and_symbol():
 
     return f"{required_title} of {required_symbol}"
 
+def get_first_non_special_card(deck):
+    non_special_card = next((card for card in deck if not card.is_special), None)
+    if non_special_card:
+        deck.remove(non_special_card)
+    return non_special_card
+
+
+
 
 # ------------- #
 #   GAME LOOP   #
@@ -208,6 +217,12 @@ required_symbol = None
 is_game = None
 played_deck = []
 
+play_index = 1
+
+# Add Starting card
+starting_card = get_first_non_special_card(game_deck)
+played_deck.append(starting_card)
+
 # Initialize game state
 current_player_index = 0
 reverse_turns = False
@@ -218,21 +233,20 @@ while True:
     print(f"\nIt's {current_player.player_name}'s turn.")
 
     # Display the top card on the played deck
-    display_text = "\nGo Ahead And Play" if len(played_deck) == 0 else f"\nTop card on the played deck: {played_deck[-1]}"
-    print(display_text)
+    print(f"\nTop card on the Playing Deck is: {played_deck[-1]}")
 
     # show player's cards and tell them to choose
     played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
+
+    # get top card
+    top_card = played_deck[-1]
     
     # Move to the next player
     if not reverse_turns:
-        current_player_index = (current_player_index + 1) % len(players)
+        current_player_index = (current_player_index + play_index) % len(players)
     else:
-        current_player_index = (current_player_index - 1) % len(players)
+        current_player_index = (current_player_index - play_index) % len(players)
     
-    # get top card
-    top_card = played_deck[-1]
-
     # check if player is Game
     if current_player.check_game():
         is_game = current_player
@@ -249,19 +263,17 @@ while True:
 
         # Check if the next player should be skipped
         elif top_card.special_power == "JUMP":
-            current_player_index = (current_player_index + 1) % len(players)
+            play_index += 1
 
         # Check if the next player should play a specific symbol
         elif top_card.special_power == "SYMBOL":
             required_card = set_required_card_symbol()
             played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
 
-
         # Check if the next player should play a specifi card
         elif top_card.special_power == "TITLE_AND_SYMBOL":
             required_card = set_required_card_title_and_symbol()
             played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
-
 
         # Check if the next player should draw 2 cards
         elif top_card.special_power == "DRAW_2_CARDS":
@@ -279,9 +291,10 @@ while True:
         elif top_card.special_power == "QUESTION":
             if top_card.get_card_symbol in current_player.player_deck:
                 played_deck, game_deck = play_card(players[current_player_index], played_deck, game_deck, required_symbol)
-                
+            else:
+                game_deck = deal_cards(current_player, game_deck, 1)    
 
     # Check if the game has ended due to lack of playable cards
-    if len(played_deck) == 0:
+    if len(game_deck) == 0:
         print("The game has ended in a draw!")
         break
