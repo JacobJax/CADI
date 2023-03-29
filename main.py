@@ -229,6 +229,9 @@ play_index = 1
 starting_card = get_first_non_special_card(game_deck)
 played_deck.append(starting_card)
 
+# get top card
+top_card = played_deck[-1]
+
 # Initialize game state
 current_player_index = 0
 reverse_turns = False
@@ -236,16 +239,16 @@ reverse_turns = False
 # Game loop
 while True:
     current_player = players[current_player_index]
+
+    print("\n$==================================================================================$")
     print(f"\nIt's {current_player.player_name}'s turn.")
 
     # Display the top card on the played deck
-    print(f"\nTop card on the Playing Deck is: {played_deck[-1]}")
+    # display_text = f""
+    print(f"\nTop card on the Playing Deck is: {top_card}.\nThe Card To Be Played should have a {top_card.card_title} and / or {top_card.card_symbol}")
 
     # show player's cards and tell them to choose
     played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
-
-    # get top card
-    top_card = played_deck[-1]
     
     # Move to the next player
     if not reverse_turns:
