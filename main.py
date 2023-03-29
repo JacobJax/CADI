@@ -122,7 +122,7 @@ def generate_cards(players, deck):
     
     return deck
 
-def play_card(player, p_deck, g_deck):
+def play_card(player, p_deck, g_deck, req_symbol):
     print(f"\nPlayer {player.player_name}'s deck:")
     player.display_cards()
 
@@ -136,9 +136,50 @@ def play_card(player, p_deck, g_deck):
         except ValueError:
             print("Please enter a valid integer index.")
 
-    if not player.play(p_deck, index):
-        deal_cards(player, g_deck, 1)
+    if p_deck and p_deck[-1].is_special and p_deck[-1].special_power == "TITLE_AND_SYMBOL":
+        if not player.play(p_deck, index, wildcard = True):
+            g_deck = deal_cards(player, g_deck, 1)
+            
 
+    if p_deck and p_deck[-1].is_special and p_deck[-1].special_power == "SYMBOL":
+        if not player.play(p_deck, index, card_symbol = req_symbol):
+            g_deck = deal_cards(player, g_deck, 1)
+
+    return p_deck, g_deck
+
+
+def set_required_card_symbol():
+
+    standard_symbols = ["Spades", "Hearts", "Diamonds", "Clubs"]
+
+    while True:
+        try:
+            required_symbol = input("\nWhat symbol do you want to play: ")
+            if required_symbol in standard_symbols:
+                break
+            else:
+                print("Please enter a valid symbol.")
+        except ValueError:
+            print("Please enter a valid symbol")
+
+    return required_symbol
+
+def set_required_card_title_and_symbol():
+    stadard_titles = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
+
+    required_symbol = set_required_card_symbol()
+
+    while True:
+        try:
+            required_title = input("\nWhat card title do you want to play: ")
+            if required_title in stadard_titles:
+                break
+            else:
+                print("Please enter a valid card title.")
+        except ValueError:
+            print("Please enter a valid card title")
+
+    return f"{required_title} of {required_symbol}"
 
 
 # ------------- #
@@ -154,12 +195,9 @@ players = generate_players()
 game_deck = generate_cards(players, shuffled_deck)
 
 # initialize GAME Variables
-required_card = None
 required_symbol = None
 is_game = None
 played_deck = []
-
-not_won = True
 
 # Initialize game state
 current_player_index = 0
@@ -175,7 +213,9 @@ while True:
     print(display_text)
 
     # show player's cards and tell them to choose
-    play_card(current_player, played_deck, game_deck)
+    played_deck, game_deck = play_card(current_player, played_deck, game_deck, required_symbol)
+
+    print_deck(played_deck)
 
     # check if player is Game
     if current_player.check_game():
@@ -199,6 +239,16 @@ while True:
     # Check if the next player should be skipped
     elif played_deck[-1].is_special and played_deck[-1].special_power == "JUMP":
         current_player_index = (current_player_index + 1) % len(players)
+
+    # Check if the next player should play a specific symbol
+    elif played_deck[-1].is_special and played_deck[-1].special_power == "SYMBOL":
+        required_card = set_required_card_symbol()
+        next_player_index = (current_player_index + 1) % len(players)
+
+    # Check if the next player should play a specifi card
+    elif played_deck[-1].is_special and played_deck[-1].special_power == "TITLE_AND_SYMBOL":
+        required_card = set_required_card_title_and_symbol()
+        next_player_index = (current_player_index + 1) % len(players)
 
     # Check if the next player should draw 2 cards
     elif played_deck[-1].is_special and played_deck[-1].special_power == "DRAW_2_CARDS":
@@ -230,10 +280,7 @@ while True:
         
         current_player_index = next_player_index
 
-
     # Check if the game has ended due to lack of playable cards
     if len(played_deck) == 0:
         print("The game has ended in a draw!")
         break
-
-
